@@ -28,7 +28,8 @@
 const config = require('./config');
 const serialport = require('serialport');
 var SerialPort = serialport;
-const Readline = SerialPort.parsers.Readline;
+// const Readline = SerialPort.parsers.Readline;
+const Readline = require('@serialport/parser-readline');
 const websockets = require('socket.io');
 const http = require('http');
 const WebSocket = require('ws');
