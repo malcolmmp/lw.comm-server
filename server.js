@@ -153,7 +153,10 @@ if (config.IP == "0.0.0.0") {
 } else {
     writeLog(chalk.yellow('Server binding to IP: ' + config.IP + ' on port: ' + config.webPort), 1);
 }
-app.listen(config.webPort, config.IP);
+// app.listen(config.webPort, config.IP);
+app.listen(config.webPort, config.IP, () => {
+    console.log(`Server listening on ${config.IP}:${config.webPort}`);
+});
 var io = websockets(app, {
     maxHttpBufferSize: config.socketMaxDataSize,
     cors: {
