@@ -32,7 +32,7 @@
   "scripts": {
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 0",
-    "update_frontend": "git rm app/ -r -f && cp ../LaserWeb4/dist/. app/ -r -u && git add app/"
+    "update_frontend": "git rm app/ -r -f && cp -r ../Laserweb4/dist/. app/ && git add app/"
   },
   "keywords": [
     "laserweb",
