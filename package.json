@@ -20,7 +20,7 @@
     "node-hid": "^2.1.2",
     "node-static": "*",
     "request": "*",
-    "serialport": "^11.0.0",
+    "serialport": "9.x",
     "socket.io": "4.x",
     "ws": "8.x"
   },
