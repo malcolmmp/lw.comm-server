@@ -6,7 +6,7 @@ dist: trusty
 before_install:
   - sudo apt-get install --no-install-recommends -y icnsutils graphicsmagick xz-utils
   - cd ../
-  - git clone https://github.com/LaserWeb/LaserWeb4.git
+  - git clone https://github.com/Rottschaferanders/LaserWeb4.git
   - cd LaserWeb4
   - git checkout dev-es6
   - npm install

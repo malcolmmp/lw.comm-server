@@ -6,6 +6,7 @@ var config = {};
 
 config.webPort = process.env.WEB_PORT || 8000;
 config.IP = process.env.IP || '0.0.0.0';
+// config.IP = process.env.IP || '127.0.0.1';
 config.serverVersion = '4.1.000';
 config.apiVersion = '4.0.8';
 

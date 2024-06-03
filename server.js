@@ -28,7 +28,8 @@
 const config = require('./config');
 const serialport = require('serialport');
 var SerialPort = serialport;
-const Readline = SerialPort.parsers.Readline;
+// const Readline = SerialPort.parsers.Readline;
+const Readline = require('@serialport/parser-readline');
 const websockets = require('socket.io');
 const http = require('http');
 const WebSocket = require('ws');
@@ -105,6 +106,7 @@ writeLog(chalk.green('**********************************************************
 writeLog(chalk.white('        ---- LaserWeb Comm Server ' + config.serverVersion + ' ----        '), 0);
 writeLog(chalk.green('***************************************************************'), 0);
 writeLog(chalk.white('  Use ') + chalk.yellow(' http://' + add + ':' + config.webPort) + chalk.white(' to connect to this server.'), 0);
+writeLog(chalk.white('  You can use the  ') + chalk.yellow('IP ') + chalk.white('env variable to configure.'), 0);
 writeLog(chalk.green('***************************************************************'));
 writeLog(chalk.green(' '), 0);
 writeLog(chalk.red('* Updates: '), 0);
@@ -152,7 +154,10 @@ if (config.IP == "0.0.0.0") {
 } else {
     writeLog(chalk.yellow('Server binding to IP: ' + config.IP + ' on port: ' + config.webPort), 1);
 }
-app.listen(config.webPort, config.IP);
+// app.listen(config.webPort, config.IP);
+app.listen(config.webPort, config.IP, () => {
+    console.log(`Server listening on ${config.IP}:${config.webPort}`);
+});
 var io = websockets(app, {
     maxHttpBufferSize: config.socketMaxDataSize,
     cors: {
