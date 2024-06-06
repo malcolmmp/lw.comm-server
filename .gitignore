@@ -1,5 +1,11 @@
 #laserweb
 
+# Subforlders #
+###############
+node_modules
+release
+dist
+
 # Compiled source #
 ###################
 *.com
