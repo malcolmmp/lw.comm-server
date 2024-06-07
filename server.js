@@ -4153,7 +4153,13 @@ const electronApp = electron.app;
 // be closed automatically when the JavaScript object is garbage collected.
 var mainWindow = null;
 
-const shouldQuit = electronApp.makeSingleInstance((commandLine, workingDirectory) => {
+// Make Squirrel (Windows Electron builder) happy
+if (require('electron-squirrel-startup')) app.quit();
+
+/*
+electronApp.requestSingleInstanceLock();
+const shouldQuit = electronApp.on('second-instance', (event, commandLine, workingDirectory) => {
+//const shouldQuit = electronApp.makeSingleInstance((commandLine, workingDirectory) => {
   // Someone tried to run a second instance, we should focus our window.
   if (mainWindow) {
     if (mainWindow.isMinimized()) mainWindow.restore();
@@ -4164,6 +4170,7 @@ const shouldQuit = electronApp.makeSingleInstance((commandLine, workingDirectory
 if (shouldQuit) {
   electronApp.quit();
 }
+*/
 
 // Create myWindow, load the rest of the app, etc...
 if (electronApp) {
@@ -4227,7 +4234,6 @@ if (electronApp) {
         }
     });
 }
-
 }
 
 if (require.main === module) {
