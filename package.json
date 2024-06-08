@@ -15,7 +15,10 @@
   "dependencies": {
     "chalk": "4.x",
     "dotenv": "10.x",
+    "electron": "^26.6.10",
+    "electron-squirrel-startup": "^1.0.0",
     "ip": "^1.1.5",
+    "ncp": "2.0.x",
     "node-abi": "^3.45.0",
     "node-hid": "^2.1.2",
     "node-static": "*",
@@ -31,8 +34,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "copy": "ncp ../LaserWeb4/dist/ app/ --limit=6",
     "test": "echo \"Error: no test specified\" && exit 0",
-    "update_frontend": "git rm app/ -r -f && cp -r ../Laserweb4/dist/. app/ && git add app/"
+    "update_frontend": "git rm app/ -r -f && ncp ../Laserweb4/dist/ app/ --limit=6 && git add app/"
   },
   "keywords": [
     "laserweb",

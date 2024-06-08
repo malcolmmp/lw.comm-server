@@ -46,6 +46,10 @@ const request = require('request'); // proxy for remote webcams
 const grblStrings = require('./grblStrings.js');
 const firmwareFeatures = require('./firmwareFeatures.js');
 const { exec } = require('child_process'); //Support for running OS commands before and after jobs
+//Electron
+const electron = require('electron');
+// Module to control application life.
+const electronApp = electron.app;
 
 exports.LWCommServer=function(config){
 
@@ -4141,6 +4145,157 @@ function doJobAction(action) {
 }
 
 }
+
+
+function isElectron() {
+    if (typeof window !== 'undefined' && window.process && window.process.type === 'renderer') {
+        return true;
+    }
+    if (typeof process !== 'undefined' && process.versions && !!process.versions.electron) {
+        return true;
+    }
+    return false;
+}
+
+function writeLog(line, verb) {
+    if (verb<=config.verboseLevel) {
+        console.log(line);
+    }
+    if (config.logLevel>0 && verb<=config.logLevel) {
+        if (!logFile) {
+            if (isElectron() && os.platform == 'darwin') {
+                //io.sockets.emit('data', 'Running on Darwin (macOS)');
+                logFile = fs.createWriteStream(path.join(electronApp.getPath('userData'),'logfile.txt'));
+            } else {
+                logFile = fs.createWriteStream('./logfile.txt');
+            }
+            logFile.on('error', function(e) { console.error(e); });
+        }
+        var time = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+        line = line.split(String.fromCharCode(0x1B) + '[31m').join('');
+        line = line.split(String.fromCharCode(0x1B) + '[32m').join('');
+        line = line.split(String.fromCharCode(0x1B) + '[33m').join('');
+        line = line.split(String.fromCharCode(0x1B) + '[34m').join('');
+        line = line.split(String.fromCharCode(0x1B) + '[35m').join('');
+        line = line.split(String.fromCharCode(0x1B) + '[36m').join('');
+        line = line.split(String.fromCharCode(0x1B) + '[37m').join('');
+        line = line.split(String.fromCharCode(0x1B) + '[38m').join('');
+        line = line.split(String.fromCharCode(0x1B) + '[39m').join('');
+        line = line.split(String.fromCharCode(0x1B) + '[94m').join('');
+        logFile.write(time + ' ' + line + '\r\n');
+    }
+}
+
+//Handles performing any pre/post/abort actions
+//Action = command line specific for OS
+function doJobAction(action) {
+
+    //NAB - Added to support action to run after job completes
+    if (typeof action === 'string' && action.length > 0) {
+        try {
+            exec(action);
+        } catch (e) {
+            //Unable to start jobAfter command
+            writeLog(chalk.red('ERROR: ') + chalk.blue('Error on job command: ' + e.message + ' for action: ' + action), 2);
+        }
+
+    }
+
+}
+
+// Electron app
+// Keep a global reference of the window object, if you don't, the window will
+// be closed automatically when the JavaScript object is garbage collected.
+var mainWindow = null;
+
+// Make Squirrel (Windows Electron builder) happy
+if (require('electron-squirrel-startup')) app.quit();
+
+/*
+electronApp.requestSingleInstanceLock();
+const shouldQuit = electronApp.on('second-instance', (event, commandLine, workingDirectory) => {
+//const shouldQuit = electronApp.makeSingleInstance((commandLine, workingDirectory) => {
+  // Someone tried to run a second instance, we should focus our window.
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.focus();
+  }
+});
+
+if (shouldQuit) {
+  electronApp.quit();
+}
+*/
+
+// Create myWindow, load the rest of the app, etc...
+if (electronApp) {
+    // Module to create native browser window.
+    const BrowserWindow = electron.BrowserWindow;
+
+    function createWindow() {
+        // Create the browser window.
+        mainWindow = new BrowserWindow({
+            width: 1200,
+            height: 900,
+            fullscreen: false,
+            center: true,
+            resizable: true,
+            title: "LaserWeb",
+            frame: true,
+            autoHideMenuBar: false,
+            icon: '/build/favicon.png',
+            webPreferences: {
+                contextIsolation: false,
+                nodeIntegration: true,
+                enableRemoteModule: true
+            }
+            
+        });
+
+        // and load the index.html of the app.
+        mainWindow.loadURL('http://127.0.0.1:' + config.webPort);
+
+        // Emitted when the window is closed.
+        mainWindow.on('closed', function () {
+            // Dereference the window object, usually you would store windows
+            // in an array if your app supports multi windows, this is the time
+            // when you should delete the corresponding element.
+            mainWindow = null;
+        });
+        mainWindow.once('ready-to-show', () => {
+          mainWindow.show()
+        })
+        mainWindow.maximize()
+        //mainWindow.webContents.openDevTools() // Enable when testing
+    };
+
+    electronApp.commandLine.appendSwitch("--ignore-gpu-blacklist");
+    electronApp.commandLine.appendSwitch("--disable-http-cache");
+    // This method will be called when Electron has finished
+    // initialization and is ready to create browser windows.
+    // Some APIs can only be used after this event occurs.
+
+
+    electronApp.on('ready', createWindow);
+
+    // Quit when all windows are closed.
+    electronApp.on('window-all-closed', function () {
+        // On OS X it is common for applications and their menu bar
+        // to stay active until the user quits explicitly with Cmd + Q
+        if (process.platform !== 'darwin') {
+            electronApp.quit();
+        }
+    });
+
+    electronApp.on('activate', function () {
+        // On OS X it's common to re-create a window in the app when the
+        // dock icon is clicked and there are no other windows open.
+        if (mainWindow === null) {
+            createWindow();
+        }
+    });
+}
+
 
 if (require.main === module) {
     exports.LWCommServer(config);
