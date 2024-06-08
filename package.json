@@ -15,7 +15,7 @@
   "dependencies": {
     "chalk": "4.x",
     "dotenv": "10.x",
-    "electron": "^26.6.10",
+    "electron": "^19.1.9",
     "electron-squirrel-startup": "^1.0.0",
     "ip": "^1.1.5",
     "ncp": "2.0.x",
