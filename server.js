@@ -4209,7 +4209,7 @@ function doJobAction(action) {
 var mainWindow = null;
 
 // Make Squirrel (Windows Electron builder) happy
-if (require('electron-squirrel-startup')) app.quit();
+//if (require('electron-squirrel-startup')) app.quit();
 
 /*
 electronApp.requestSingleInstanceLock();
