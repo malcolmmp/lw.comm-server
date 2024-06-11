@@ -4242,7 +4242,7 @@ if (electronApp) {
             resizable: true,
             title: "LaserWeb",
             frame: true,
-            autoHideMenuBar: false,
+            autoHideMenuBar: true,
             icon: '/build/favicon.png',
             webPreferences: {
                 contextIsolation: false,
