@@ -399,14 +399,19 @@ io.sockets.on('connection', function (appSocket) {
                     io.sockets.emit('activePort', {port: port.path, baudrate: port.settings.baudRate});
                     io.sockets.emit('connectStatus', 'opened:' + port.path);
                     if (reset) {
-                        port.write(String.fromCharCode(0x18)); // ctrl-x (reset firmware)
-                        writeLog('Sent: ctrl-x', 1);
+                        setTimeout(function () { // Callback for GrblHAL timing
+                            port.write(String.fromCharCode(0x18)); // ctrl-x (reset firmware)
+                            writeLog('Sent: ctrl-x', 1);
+                        }, config.grblWaitTime * 1000);
+                        //port.write(String.fromCharCode(0x18)); // ctrl-x (reset firmware)
+                        //writeLog('Sent: ctrl-x', 1);
                     } else {
                         machineSend('\n'); // this causes smoothie to send the welcome string
                         writeLog('Sent: \\n', 1);
                     }
                     setTimeout(function () { //wait for controller to be ready
                         if (!firmware) { // Grbl should be already detected
+                            //port.write(String.fromCharCode(0x18)); // ctrl-x (reset firmware)
                             machineSend('version\n'); // Check if it's Smoothieware?
                             writeLog('Sent: version', 2);
                             setTimeout(function () {  // Wait for Smoothie to answer
@@ -694,7 +699,19 @@ io.sockets.on('connection', function (appSocket) {
                             //reprapBufferSize++;
                         }
                         reprapWaitForPos = false;
-
+                    } else if (data.indexOf('GrblHAL') === 0) { // Check if it's GrblHAL
+                        firmware = 'grbl';
+                        fVersion = data.substr(8, 4); // get version
+                        fDate = '';
+                        writeLog('GrblHAL detected (' + fVersion + ')', 1);
+                        io.sockets.emit('firmware', {firmware: firmware, version: fVersion, date: fDate});
+                        // Start intervall for status queries
+                        statusLoop = setInterval(function () {
+                            if (isConnected) {
+                                machineSend('?');
+                                //writeLog('Sent: ?', 2);
+                            }
+                        }, 250);
                     } else if (data.indexOf('Grbl') === 0) { // Check if it's Grbl
                         firmware = 'grbl';
                         fVersion = data.substr(5, 4); // get version
